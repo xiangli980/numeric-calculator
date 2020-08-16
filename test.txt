@@ -1,0 +1,289 @@
+For each step, I write testcases in the order of instructions (also in the order we type the argument).
+And I test them in aspects of format, value and complexity.
+For wrong inputs, we will first run ./numerics, then test one argument.
+For all valid inputs, we will run them together, run ./numerics <xxx.txt .
+
+1.1 Define
+
+In this step, some times it will show more than one line error information,
+that is because I want to clean all the memory, so later errors caused by it will also come up.
+
+For every wrong input:
+(1)  Run ./numerics < def (f x) = x
+     You will see that it prints not a valid command, which is correct because "def" is not a command
+(2)  Run ./numerics < define f x) = x
+     You will see that it prints need a ( , which is correct because it lack "("
+(3)  Run ./numerics < define( f x) = x
+     You will see that it prints not a valid id/not a valid command, which is correct because "define(" is not a command
+(4)  Run ./numerics < define (f1 x) = x
+     You will see that it prints not a valid id/invalid fname, which is correct because "f1" is not a series letters
+(5)  Run ./numerics < define (f ) = 2
+     You will see that it prints need at least one id, which is correct because every f need at least one id
+(6)  Run ./numerics < define (existf x) = x
+                    < define (existf x) = 2
+     You will see that it prints existf(x ) / redefined fname, which is correct because f cannot be redefined
+(7)  Run ./numerics < define (fx ) = x
+     You will see that it prints need at least one id, which is correct because "f" "x" should have a space between
+(8)  Run ./numerics < define (f &) = &
+     You will see that it prints not a valid id/need at least one id, which is correct because "&" is not a letter
+(9)  Run ./numerics < define (f 1) = 1
+     You will see that it prints not a valid id/need at least one id, which is correct because "1" is not a letter
+(10) Run ./numerics < define (f x_1) = x_1
+     You will see that it prints not a valid id/need at least one id, which is correct because "x_1" is not a sequence of letter
+(11) Run ./numerics < define (f x x) = x
+     You will see that it prints id can't be repeated, which is correct because "x" comes up twice
+(12) Run ./numerics < define (f x = x
+     You will see that it prints define need a ), which is correct because it should be (f x) = x
+(13) Run ./numerics < define (f x) x
+     You will see that it prints define need a =, which is correct because it should be (f x) = x
+(14) Run ./numerics < define (f x) = 2 + x
+     You will see that it prints surplus characters after whole expression , which is correct because computer read it as a number "2"
+(15) Run ./numerics < define (f x) = x + 2
+     You will see that it prints surplus characters after whole expression, which is correct because computer read it as a id "x"
+(16) Run ./numerics < define (f x) = + x 2
+     You will see that it prints Expected a number, but found + x 2, which is correct because "+" is neither a letter nor a number
+(17) Run ./numerics < define (f x) = y
+     You will see that it prints invalid id or surplus character, which is correct because y is not a defined id
+(18) Run ./numerics < define (f x) = 2x
+     You will see that it prints surplus characters after whole expression, which is correct because computer accept "2"
+(19) Run ./numerics < define (f x) = (2)
+     You will see that it prints Invalid op: 2), which is correct because after "(", we expect a op
+(20) Run ./numerics < define (f x) = (x)
+     You will see that it prints Invalid op: x), which is correct because after "(", we expect a op
+(21) Run ./numerics < define (f x y) = (+ x z)
+     You will see that it prints invalid id or surplus character, which is correct because z is not defined
+(22) Run ./numerics < define (f x y) = (+ 2x)
+     You will see that it prints not a valid number/surplus characters after whole expression, which is correct because it should be (+ 2 x)
+(23) Run ./numerics < define (f x y) = (+x y)
+     You will see that it prints Invalid op: +x /surplus characters after whole expression, which is correct because it should be (+ x y)
+(24) Run ./numerics < define (f x y) = ($ x y)
+     You will see that it prints Invalid op: +x /surplus characters after whole expression, which is correct because "$" is not a op
+(25) Run ./numerics < define (f x) = (+ 3 (* 2 x)
+     You will see that it prints Expected ) but found , which is correct because it lack a ')' at the end
+(26) Run ./numerics < define (f x) = (+ 3 (* 2 x)) other
+     You will see that it prints invalid id or surplus character, which is correct because "other" is surplus
+(27) Run ./numerics < define (f x) = (+ 3 (* 2 x)))
+     You will see that it prints surplus characters after whole expression, which is correct because ')' is surplus
+(28) Run ./numerics < define (f x) = (sin x 1)
+     You will see that it prints Expected ) but found 1) /surplus characters after whole expression, which is correct because "sin" only need one id
+(29) Run ./numerics < define (f x) = (+ x)
+     You will see that it prints Expected a number, but found ) /surplus characters after whole expression, which is correct because "+" need two ids, the second one ')' is assumed to be a number by computer
+(30) Run ./numerics < define (f x) = ((+ x 2))
+     You will see that it prints Invalid op: (+ /surplus characters after whole expression, which is correct because after '(' expect a op
+(31) Run ./numerics < define (f x y) = (f x y)
+     You will see that it prints invalid id or surplus character, which is correct because 'f' has not been defined
+(32) Run ./numerics < define (g x y) = (+ x y)
+                    < define (f x) = (g (+ x 2))
+     You will see that it prints g(x y) / Expected a number, but found ) / lack expr for some id, which is correct because "g (x y)" has two ids, "(g (+ x 2))" only has one expr
+(33) Run ./numerics < define (g x y) = (+ x y)
+                    < define (f x y z) = (g y x z)
+     You will see that it prints g (x y)/ expr need a ), but find z), which is correct because (g x y) has only 2 ids
+(34) Run ./numerics < define (g x y) = (+ x y)
+                    < define (f x) = (g 2 y)
+     You will see that it prints g(x y)/ invalid id or surplus character, which is correct because "y" is not a id for "f"
+(35) Run ./numerics < define (g x y) = (+ x y)
+                    < define (f x) = (g 1 2
+     You will see that it prints expr need a ), but find  , which is correct because (g 1 2) is the whole expr
+
+
+for correct answer:
+(36) Run ./numerics < define.txt  ,which contains:
+     # input order as follow
+     define (f x y z) = (+ (* x y) (- z 3))
+     define (g x) = (+ (f (sin x) (cos 0) (sqrt x))  -4.5 ) #test functions
+     define (h x) = (/ (ln x) (pow 2 x))
+        define   (  kk  x  y  z  a b c d ef gh  )=  (f  (  g (h  (% y 5)) )  x  z   )
+     define (k x) = -1.234
+     define (ff x)=(/ (- (+ 4 x) 3) x)# test least space
+
+     You will see that it prints :
+     f(x y z )
+     g(x )
+     h(x )
+     kk(x y z a b c d ef gh )
+     k(x )
+     ff(x )
+     which is correct because they are all valid define arguments
+
+
+1.2 Test
+
+For following wrong cases,
+
+First run  ./numerics < define (f x y z) = (+ (* x y) (- z 3))  ,it prints f(x y z)
+
+Then run the following argument:
+(1)  Run ./numerics < tes (f 1 2 3) 0
+     You will see that it prints not a valid command, which is correct because "tes" is not complete
+(2)  Run ./numerics < test( f 1 2 3) 0
+     You will see that it prints not a valid id/not a valid command, which is correct because "test(" is not a command
+(3)  Run ./numerics < test (f 1 2) 0
+     You will see that it prints expect constant value but find ) 0 , which is correct because lack value for f(x y z)
+(4)  Run ./numerics < test (f 1 2 3 4) 0
+     You will see that it prints expect ) but found 4) 0, which is correct because "4" is not considered a value for f(x y z)
+(5)  Run ./numerics < test (aaa 1 2 3 ) 0
+     You will see that it prints not a valid function, which is correct because
+(6)  Run ./numerics < test f 1 2 3 0
+     You will see that it prints expect constant but find  f 1 2 3 0, which is correct because if no '(' in first argument, computer expect a contant
+(7)  Run ./numerics < test (f 1 2 3 0
+     You will see that it prints expect ) but found 0, which is correct because (f 1 2 3) is complete
+(8)  Run ./numerics < test (f x y 1) 0
+     You will see that it prints expect constant but find  x y 1) 0, which is correct because parameter should be constant, not "x"
+(9)  Run ./numerics < test (f 1 2 3)
+     You will see that it prints expected a constant, which is correct because in second argument lack a constant
+(10) Run ./numerics < test (f 1 2 3) x
+     You will see that it prints expected a constant, which is correct because in second argument "x" is not a constant
+(11) Run ./numerics < test (f 1 2 3) 1 2
+     You will see that it prints not a valid test argument, which is correct because in second argument "2" is surplus
+(12) Run ./numerics < test x 0
+     You will see that it prints expect constant but find  x 0, which is correct because if no '(' in first argument, computer expect a contant
+(13) Run ./numerics < test (f (f x 1 2) 3 4) 0
+     You will see that it prints expect constant but find  x 1 2) 3 4) 0, which is correct because only constant is allowed in function parameter
+
+
+For right cases:
+(14) Run ./numerics < test.txt  , which contains:
+     # define functions
+     define (f x y z) = (+ (* x y) (- z 3))
+     define (g x) = (+ (f (sin x) (cos 0) (sqrt x))  -4.5 )
+     define (h x) = (/ (ln x) (pow 2 x))
+     define   (  kk  x  y  z  a b c d ef gh  )=  (f  (  g (h  (% y 5)) )  x  z   )
+     define (k x) = -1.234
+     define (ff x)=(/ (- (+ 4 x) 3) x)
+
+     #test functions
+     test (g 0) -7.5
+     test (h 1) 0
+     test (k 2) -1.234
+     test (f (g 0) (h 1) (k 2)) -4.234
+     test 0.1 0.1 #number
+     test (kk 1 2 3 0 0 0 0 0 0) 0  #this test will fail(incorrect) and exit
+     test (k 2)  -1.234
+
+
+     you will see it will print:
+     f(x y z)
+     g(x)
+     h(x)
+     kk(x y z a b c d ef gh)
+     k(x)
+     ff(x)
+     g( 0) = -7.5 [correct]
+     h( 1) = 0 [correct]
+     k( 2) = -1.234 [correct]
+     f( (g 0) (h 1) (k 2)) = -4.234 [correct]
+     0.1 = 0.1 [correct]
+     kk( 1 2 3 0 0 0 0 0 0) = 0 [INCORRECT: expected -6.9113]
+
+
+2. Numerical Integration
+
+for wrong input:
+first run ./numerics < define (f x y) = (+ (* 2 x) y)
+
+then run the following:
+(1)  Run ./numerics < num f 0.1 2 3 4 5
+     You will see that it prints not a valid command, which is correct because "num" is not a command
+(2)  Run ./numerics < numint g 0.1 2 3 4 5
+     You will see that it prints no such function, which is correct because "g" is not a defined fun
+(3)  Run ./numerics < numint f -1 2 3 4 5
+     You will see that it prints step should > 0, which is correct because "-1" < 0
+(4)  Run ./numerics < numint f 0.1 999 2 100 4
+     You will see that it prints bound error, which is correct because 999>2
+(5)  Run ./numerics < numint f 0.1 2 3 4
+     You will see that it prints expected a number, which is correct because lack a upperbound for second parameter
+(6)  Run ./numerics < numint f 0.1 2 3 4 5 678
+     You will see that it prints find invalid characters, which is correct because "678" is surplus
+(7)  Run ./numerics < numint f 0.1 2 3 x4
+     You will see that it prints expected a number, which is correct because "x"  is not a value for parameter
+
+for correct input:
+
+(1)  Run ./numerics < numint.txt , it contains:
+     define (f x y) = (+ (* 2 x) y)
+     define (g x) = (- (* x x) (* 2 x))
+     define (h x) = (- (* 2 x) (* x x))
+
+     numint f 0.001 -1 1 4 5
+     numint g 0.001 0 2
+     numint h 0.001 0 2
+
+     it will print :
+     f(x y)
+     g(x)
+     h(x)
+     numint 9
+     numint -1.3333
+     numint 1.3333
+
+
+
+3. Monte Carlo Integration
+
+most wrong input is as same as numint, except for the "trial" argument, which should be an integer:
+
+first run ./numerics < define (f x y) = (+ (* 2 x) y)
+
+(1)  run ./numerics < mcint f 1.2 2 3 4 5
+     You will see that it prints not valid trial number, which is correct because "num" is not a command
+
+for correct input:
+
+(2)  Run ./numerics < numint.txt , it contains:
+     define (f x y) = (+ (* 2 x) y)
+     define (g x) = (- (* x x) (* 2 x))
+     define (h x) = (- (* 2 x) (* x x))
+
+     mcint f 10000 -1 1 4 5
+     mcint g 10000 0 2
+     mcint h 10000 0 2
+
+
+     f(x y)
+     g(x)
+     h(x)
+     mcint 8.9594
+     mcint -1.33769
+     mcint 1.33658
+
+
+4. Gradient Ascent
+
+For wrong input,
+First Run ./numerics < define (f x y) = (+ (* 2 x) y)
+
+Then run the following:
+
+(1)  Run ./numerics < max g 0.01 0.001 1 1 5000
+     You will see that it prints not a valid function, which is correct because "g" is not defined
+(2)  Run ./numerics < max f -0.01 0.001 1 1 5000
+     You will see that it prints gamma should > 0, which is correct because gamma>0
+(3)  Run ./numerics < max f 0.01 -0.001 1 1 5000
+     You will see that it prints convDis should > 0 , which is correct because convergeDistance>0
+(4)  Run ./numerics < max f 0.01 0.001 1 5000
+     You will see that it prints expected a number, which is correct because lack a parameter
+(5)  Run ./numerics < max f 0.01 0.001 1 x 5000
+     You will see that it prints expected a number, which is correct because "x" is not a number
+(6)  Run ./numerics < max f 0.01 0.001 1 2 3 5000
+     You will see that it prints have surplus characters, which is correct because last parameter is surplus
+(7)  Run ./numerics < max f 0.01 0.001 1 1 5000.5
+     You will see that it prints not a valid maxStep, which is correct because maxStep should be integer
+
+
+for correct input:
+(8)  Run ./numerics < maxmin.txt , which contians:
+     define (f x y) = (+ (* 2 x) y)
+     define (g x) = (- (* x x) (* 2 x))
+     define (h x) = (- (* 2 x) (* x x))
+
+     max f 0.01 0.001 1 1 5000
+     min g 0.1 0.001 1 5000   #symmetric to the next function
+     max h 0.1 0.001 1 5000
+
+     it will print:
+     f(x y)
+     g(x)
+     h(x)
+     not converge, stop at: (f 101.000000 51.000000)
+     find a converge point: (g 0.989683) = -0.999894
+     find a converge point: (h 0.989683) = 0.999894

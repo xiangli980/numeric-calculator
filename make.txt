@@ -1,0 +1,6 @@
+numerics: numerics.cpp integral.cpp gradient.cpp expr.h integral.h gradient.h
+        g++ -o numerics -std=gnu++11 -Wall -Werror -pedantic -ggdb3 numerics.cpp integral.cpp gradient.cpp
+
+clean:
+        rm -f *~ expr
+
