@@ -1,12 +1,8 @@
-For each step, I write testcases in the order of instructions (also in the order we type the argument).
-And I test them in aspects of format, value and complexity.
+For each step, I write testcases in the order of input argument. And they are considered in aspects of format, value and complexity.
 For wrong inputs, we will first run ./numerics, then test one argument.
 For all valid inputs, we will run them together, run ./numerics <xxx.txt .
 
 1.1 Define
-
-In this step, some times it will show more than one line error information,
-that is because I want to clean all the memory, so later errors caused by it will also come up.
 
 For every wrong input:
 (1)  Run ./numerics < def (f x) = x
